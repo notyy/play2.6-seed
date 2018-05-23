@@ -2,19 +2,27 @@ package biz
 
 import biz.domain.Customer
 
-import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 trait Database {
   this: DBConfigProvider =>
 
-  lazy val databaseApi: jdbcProfile.API = jdbcProfile.api
+  def dbName: String
 
-  import databaseApi._
+  val dbConfig = getDatabaseConfig(dbName)
 
-  def run[T](action: slick.dbio.DBIOAction[T, NoStream, Nothing]): Future[T] = {
-    db.run(action)
+  lazy val databaseApi = dbConfig.profile.api
+
+  import dbConfig.profile.api._
+
+  def run[T](action: slick.dbio.DBIOAction[T, NoStream, Nothing]): T = {
+    Await.result(runAsync(action), 5 seconds)
   }
 
+  private def runAsync[T](action: DBIOAction[T, databaseApi.NoStream, Nothing]) = {
+    dbConfig.db.run(action)
+  }
 
   class CustomerTable(tag: Tag) extends Table[Customer](tag, "customer") {
     def id = column[Option[String]]("ID", O.PrimaryKey, O.AutoInc)
@@ -23,12 +31,14 @@ trait Database {
 
     def birthday = column[Option[String]]("BIRTHDAY")
 
-    def * = (id, name, birthday) <> (Customer.tupled, Customer.unapply)
+    def address = column[Option[String]]("ADDRESS")
+
+    def * = (id, name, birthday, address) <> (Customer.tupled, Customer.unapply)
   }
 
   val customers = TableQuery[CustomerTable]
 
-  def setupDB(): Future[Unit] = {
+  def setupDB(): Unit = {
     println("create tables:")
     customers.schema.createStatements.foreach(println)
     val setUp = DBIO.seq(
@@ -37,11 +47,13 @@ trait Database {
     run(setUp)
   }
 
-  def dropDB(): Future[Unit] = {
+  def dropDB(): Unit = {
     println("delete tables:")
     val drop = DBIO.seq(
       customers.schema.drop
     )
     run(drop)
   }
+
+  def close(): Unit  = dbConfig.db.close()
 }
