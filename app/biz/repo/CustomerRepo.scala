@@ -3,19 +3,18 @@ package biz.repo
 import biz.Database
 import biz.domain.Customer
 
-import scala.concurrent.Future
+trait CustomerRepo {
+  val database: Database
 
-class CustomerRepo {
-  this: Database =>
+  import database.customers
+  import database.databaseApi._
 
-  import databaseApi._
-
-  def register(name: String): Future[Customer] = {
+  def register(customer: Customer): Customer = {
     val q = (customers returning customers.map(_.id)
       into ((customer, id) => customer.copy(id = id))
-      ) += Customer(None, name, None)
-    run(q)
+      ) += customer
+    database.run(q)
   }
 
-  def listAll: Future[Seq[Customer]] = run(customers.result)
+  def listAll: Seq[Customer] = database.run(customers.result)
 }
