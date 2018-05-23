@@ -1,7 +1,8 @@
 package controllers
 
+import akka.util.ByteString
 import javax.inject._
-import play.api._
+import play.api.http.HttpEntity
 import play.api.mvc._
 
 /**
@@ -25,4 +26,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def hello() = Action { implicit request: Request[AnyContent] =>
     Ok("""{"result": "hello"}""")
   }
+
+  def download() = Action { implicit request: Request[AnyContent] =>
+      Result(
+        header = ResponseHeader(200, Map.empty),
+        body = HttpEntity.Strict(ByteString("Hello world"), Some("application/csv"))
+      )
+    }
 }

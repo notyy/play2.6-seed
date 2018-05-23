@@ -11,3 +11,6 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 # An example of restful service return some json
 GET     /hello                      controllers.HomeController.hello
+
+# An example of download file
+GET     /download                   controllers.HomeController.download
