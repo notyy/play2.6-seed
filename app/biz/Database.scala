@@ -17,7 +17,7 @@ trait Database {
   import dbConfig.profile.api._
 
   def run[T](action: slick.dbio.DBIOAction[T, NoStream, Nothing]): T = {
-    Await.result(runAsync(action), 5 seconds)
+    Await.result(runAsync(action), 30 seconds)
   }
 
   private def runAsync[T](action: DBIOAction[T, databaseApi.NoStream, Nothing]) = {

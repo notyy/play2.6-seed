@@ -20,9 +20,9 @@ object DBSetup extends App with StrictLogging {
     override val database = h2fileDB
   }
 
-  val i = 10000000
+  val i = 1000000
   logger.info(s"insert $i data into customer table")
-  (1 to 100).foreach { i =>
+  (1 to i).foreach { i =>
     val customer = Customer(None, s"yy$i",Some("20180523"),Some("some address on earth"))
     customerRepo.register(customer)
   }
