@@ -2,6 +2,8 @@ package biz.repo
 
 import biz.Database
 import biz.domain.Customer
+import slick.basic.DatabasePublisher
+import slick.jdbc.{ResultSetConcurrency, ResultSetType}
 
 trait CustomerRepo {
   val database: Database
@@ -17,4 +19,12 @@ trait CustomerRepo {
   }
 
   def listAll: Seq[Customer] = database.run(customers.result)
+
+  def customerStream: DatabasePublisher[Customer] = {
+    database.runStream(customers.result.withStatementParameters(
+      rsType = ResultSetType.ForwardOnly,
+      rsConcurrency = ResultSetConcurrency.ReadOnly,
+      fetchSize = 10000
+    ))
+  }
 }

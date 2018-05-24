@@ -12,21 +12,21 @@ object DBSetup extends App with StrictLogging {
   val h2fileDB = new Database with DBConfigProvider {
     override def dbName: String = "h2file"
   }
-  h2fileDB.dropDB()
-  h2fileDB.setupDB()
-  logger.info("database created")
+//  h2fileDB.dropDB()
+//  h2fileDB.setupDB()
+//  logger.info("database created")
 
   val customerRepo = new CustomerRepo{
     override val database = h2fileDB
   }
 
-  val i = 1000000
-  logger.info(s"insert $i data into customer table")
-  (1 to i).foreach { i =>
-    val customer = Customer(None, s"yy$i",Some("20180523"),Some("some address on earth"))
-    customerRepo.register(customer)
-  }
-  logger.info(s"$i data inserted")
+//  val i = 1000000
+//  logger.info(s"insert $i data into customer table")
+//  (1 to i).foreach { i =>
+//    val customer = Customer(None, s"yy$i",Some("20180523"),Some("some address on earth"))
+//    customerRepo.register(customer)
+//  }
+//  logger.info(s"$i data inserted")
 
   logger.info(s"there are ${customerRepo.listAll.size} data in customer table")
   h2fileDB.close()

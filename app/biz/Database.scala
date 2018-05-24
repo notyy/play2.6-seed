@@ -1,6 +1,8 @@
 package biz
 
 import biz.domain.Customer
+import slick.basic.DatabasePublisher
+import slick.jdbc.{ResultSetConcurrency, ResultSetType}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -18,6 +20,10 @@ trait Database {
 
   def run[T](action: slick.dbio.DBIOAction[T, NoStream, Nothing]): T = {
     Await.result(runAsync(action), 30 seconds)
+  }
+
+  def runStream[T](action: slick.dbio.DBIOAction[_, Streaming[T], Nothing]): DatabasePublisher[T] = {
+    dbConfig.db.stream(action)
   }
 
   private def runAsync[T](action: DBIOAction[T, databaseApi.NoStream, Nothing]) = {
