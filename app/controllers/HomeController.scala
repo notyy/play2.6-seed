@@ -2,8 +2,7 @@ package controllers
 
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
-import biz.repo.CustomerRepo
-import biz.{DBConfigProvider, Database}
+import biz.repo.{CustomerRepo, DBConfigProvider, Database}
 import com.typesafe.scalalogging.StrictLogging
 import javax.inject._
 import play.api.Logger

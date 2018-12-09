@@ -1,8 +1,7 @@
-package biz
+package biz.repo
 
 import biz.domain.Customer
 import slick.basic.DatabasePublisher
-import slick.jdbc.{ResultSetConcurrency, ResultSetType}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

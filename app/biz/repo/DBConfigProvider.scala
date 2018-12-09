@@ -1,7 +1,7 @@
-package biz
+package biz.repo
 
 import slick.basic.DatabaseConfig
-import slick.jdbc.{H2Profile, JdbcProfile, OracleProfile}
+import slick.jdbc.JdbcProfile
 
 trait DBConfigProvider {
   def getDatabaseConfig(dbName: String): DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig(dbName)

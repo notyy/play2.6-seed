@@ -1,6 +1,5 @@
 package biz.repo
 
-import biz.Database
 import biz.domain.Customer
 import slick.basic.DatabasePublisher
 import slick.jdbc.{ResultSetConcurrency, ResultSetType}

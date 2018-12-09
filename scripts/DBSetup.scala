@@ -1,6 +1,5 @@
 import biz.domain.Customer
-import biz.repo.CustomerRepo
-import biz.{DBConfigProvider, Database}
+import biz.repo.{CustomerRepo, DBConfigProvider, Database}
 import com.typesafe.scalalogging.StrictLogging
 
 /**
