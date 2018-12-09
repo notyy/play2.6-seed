@@ -3,9 +3,9 @@ package controllers
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import biz.repo.{CustomerRepo, DBConfigProvider, Database}
+import biz.service.CustomerService
 import com.typesafe.scalalogging.StrictLogging
 import javax.inject._
-import play.api.Logger
 import play.api.http.HttpEntity
 import play.api.mvc._
 
@@ -32,12 +32,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def download() = Action { implicit request: Request[AnyContent] =>
-    val customerRepo: CustomerRepo = prepareCustomerRepo
-
+    val customerService: CustomerService = prepareCustomerService()
     showMemoryUsage("before reading data from db")
 
-    val customers = customerRepo.listAll.map(_.toString).mkString("\n")
-//    h2fileDB.close()
+    val customers = customerService.getAllCustomersAsString()
     showMemoryUsage("after reading data from db")
     val rs = Result(
       header = ResponseHeader(200, Map.empty),
@@ -45,6 +43,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
     showMemoryUsage("after http result is composed")
     rs
+  }
+
+  private def prepareCustomerService(): CustomerService = {
+    new CustomerService with CustomerRepo {
+      override val database: Database = {
+        val h2fileDB = new Database with DBConfigProvider {
+          override def dbName: String = "h2file"
+        }
+        h2fileDB
+      }
+    }
   }
 
   private def prepareCustomerRepo = {
@@ -59,12 +68,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def chunked() = Action { implicit request: Request[AnyContent] =>
-    val customerRepo: CustomerRepo = prepareCustomerRepo
-
+    val customerService = prepareCustomerService()
     showMemoryUsage("before reading data from db")
 
     val headerSource = Source.single(ByteString(""""id","name","birthday","address"""" + "\n"))
-    val customerCsvSource = Source.fromPublisher(customerRepo.customerStream)
+    val customerCsvSource = Source.fromPublisher(customerService.customerAsStream())
       .map(data => ByteString(s""""${data.id}","${data.name}","${data.birthday}","${data.address}"""" + "\n"))
     val csvSource = Source.combine(headerSource, customerCsvSource)(Concat[ByteString])
     showMemoryUsage("after reading data from db")
